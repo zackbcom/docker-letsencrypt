@@ -30,8 +30,9 @@ docker create \
   -e EMAIL=<email> \
   -e URL=<url> \
   -e SUBDOMAINS=<subdomains> \
-  -p 443:443 \
+  -p 80:80 -p 443:443 \
   -e TZ=<timezone> \
+  -e HTTPVAL=true \
   linuxserver/letsencrypt
 ```
 
@@ -43,7 +44,7 @@ So -p 8080:80 would expose port 80 from inside the container to be accessible fr
 http://192.168.x.x:8080 would show you what's running INSIDE the container on port 80.`
 
 
-* `-p 443` - the port(s)
+* `-p 80 -p 443` - the port(s)
 * `-v /config` - all the config files including the webroot reside here
 * `-e URL` - the top url you have control over ("customdomain.com" if you own it, or "customsubdomain.ddnsprovider.com" if dynamic dns)
 * `-e SUBDOMAINS` - subdomains you'd like the cert to cover (comma separated, no spaces) ie. `www,ftp,cloud`
@@ -54,10 +55,13 @@ http://192.168.x.x:8080 would show you what's running INSIDE the container on po
 _Optional settings:_
 * `-e EMAIL` - your e-mail address for cert registration and notifications
 * `-e DHLEVEL` - dhparams bit value (default=2048, can be set to `1024` or `4096`)
-* `-p 80` - Port 80 forwarding is optional (cert validation is done through 443 by default) unless the `HTTPVAL` option is set to `true`
+* `-p 80` - Port 80 forwarding is optional (cert validation is done through 443 by default) unless the `HTTPVAL` option is set to `true`, however letsencrypt recently disabled https validations over 443 due to security concern and therefore we recommend mapping port 80 and setting `HTTPVAL` to `true`
 * `-e ONLY_SUBDOMAINS` - if you wish to get certs only for certain subdomains, but not the main domain (main domain may be hosted on another machine and cannot be validated), set this to `true`
 * `-e EXTRA_DOMAINS` - additional fully qualified domain names (comma separated, no spaces) ie. `extradomain.com,subdomain.anotherdomain.org`
 * `-e HTTPVAL` - if you wish to get certs through http validation on port 80 instead of port 443, set this to `true`. Keep in mind that you also have to map port 80 as listed above
+
+_Officially unsupported settings:_
+* `-e DNSVAL` - set this to `true` for DNS validation. You need to fully understand how DNS validation works and should be able to write your own bash scripts. Create two scripts named `/config/authenticator.sh` and `/config/cleanup.sh`, which should add and remove the necessary TXT records to/from your DNS settings. If you don't know how to do this or what this means, you should not be using this option. This option is only for advanced users. We will not answer any questions related to this setting. If you need to ask questions, this is not meant for you.
 
 It is based on alpine linux with s6 overlay, for shell access whilst the container is running do `docker exec -it letsencrypt /bin/bash`.
 
@@ -74,9 +78,9 @@ In this instance `PUID=1001` and `PGID=1001`. To find yours use `id user` as bel
 
 ## Setting up the application
 
-* Before running this container, make sure that the url and subdomains are properly forwarded to this container's host, and that port 443 is not being used by another service on the host (NAS gui, another webserver, etc.).
-* Port 443 on the internet side of the router should be forwarded to this container's port 443 (Required for letsencrypt validation)
-* If `HTTPVAL` is set to `true`, port 80 on the internet side of the router should be forwarded to this container's port 80 (Required for letsencrypt validation)
+* Before running this container, make sure that the url and subdomains are properly forwarded to this container's host, and that port 443 (and/or 80) is not being used by another service on the host (NAS gui, another webserver, etc.).
+* Port 443 on the internet side of the router should be forwarded to this container's port 443 (Required for letsencrypt https validation)
+* If `HTTPVAL` is set to `true`, port 80 on the internet side of the router should be forwarded to this container's port 80 (Required for letsencrypt http validation)
 * `--cap-add=NET_ADMIN` is required for fail2ban to modify iptables
 * If you need a dynamic dns provider, you can use the free provider duckdns.org where the url will be `yoursubdomain.duckdns.org` and the subdomains can be `www,ftp,cloud`
 * The container detects changes to url and subdomains, revokes existing certs and generates new ones during start. It also detects changes to the DHLEVEL parameter and replaces the dhparams file.
@@ -98,6 +102,7 @@ In this instance `PUID=1001` and `PGID=1001`. To find yours use `id user` as bel
 
 ## Versions
 
++ **15.01.18:** Allow for DNS validation through variable `DNSVAL`. This method requires custom user scripts and is not officially supported (to be used only by advanced users who know what they are doing and cannot validate through port 80). Please don't ask for assistance on this feature
 + **13.01.18:** Re-enable ipv6 due to update to fail2ban 0.10.1. Existing users can enable ipv6 by deleting `/config/fail2ban/action.d/iptables-common.local` and restarting the container after updating the image
 + **11.01.18:** Halt the container if validation fails instead of a stop (so restart=always doesn't get users throttled with letsencrypt)
 + **10.01.18:** Add option for http validation on port 80
