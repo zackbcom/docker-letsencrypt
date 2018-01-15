@@ -141,12 +141,14 @@ if [ ! -f "/config/keys/letsencrypt/fullchain.pem" ]; then
       echo "ERROR!! authenticator.sh or cleanup.sh scripts don't exist. Create these custom scripts and recreate the container"
       sleep infinity
     else
+      echo "Performing DNS validation"
       chmod +x /config/authenticator.sh /config/cleanup.sh
 # shellcheck disable=SC2086
       certbot certonly --non-interactive --renew-by-default --manual --preferred-challenges=http --manual-auth-hook /config/authenticator.sh --manual-cleanup-hook /config/cleanup.sh --rsa-key-size 4096 $EMAILPARAM --agree-tos $URLS
     fi
   else
 # shellcheck disable=SC2086
+    echo "Performing http/s validation"
     certbot certonly --non-interactive --renew-by-default --standalone --preferred-challenges $PREFCHAL --rsa-key-size 4096 $EMAILPARAM --agree-tos $URLS
   fi
   if [ -d /config/keys/letsencrypt ]; then
