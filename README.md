@@ -55,7 +55,7 @@ http://192.168.x.x:8080 would show you what's running INSIDE the container on po
 _Optional settings:_
 * `-e EMAIL` - your e-mail address for cert registration and notifications
 * `-e DHLEVEL` - dhparams bit value (default=2048, can be set to `1024` or `4096`)
-* `-p 80` - Port 80 forwarding is optional (cert validation is done through 443 by default) unless the `HTTPVAL` option is set to `true`, however letsencrypt recently disabled https validations over 443 due to security concern and therefore we recommend mapping port 80 and setting `HTTPVAL` to `true`
+* `-p 80` - Port 80 forwarding is optional (cert validation is done through 443 by default) unless the `HTTPVAL` option is set to `true`, however letsencrypt recently disabled https validations over 443 due to security concerns and therefore we recommend mapping port 80 and setting `HTTPVAL` to `true` for http validation over port 80
 * `-e ONLY_SUBDOMAINS` - if you wish to get certs only for certain subdomains, but not the main domain (main domain may be hosted on another machine and cannot be validated), set this to `true`
 * `-e EXTRA_DOMAINS` - additional fully qualified domain names (comma separated, no spaces) ie. `extradomain.com,subdomain.anotherdomain.org`
 * `-e HTTPVAL` - if you wish to get certs through http validation on port 80 instead of port 443, set this to `true`. Keep in mind that you also have to map port 80 as listed above
