@@ -98,6 +98,7 @@ In this instance `PUID=1001` and `PGID=1001`. To find yours use `id user` as bel
 
 ## Versions
 
++ **18.01.18:** Add versions to user editable default configs. You can check your config file's version date to the one on github to see if there were updates not applied to your custom config file
 + **13.01.18:** Re-enable ipv6 due to update to fail2ban 0.10.1. Existing users can enable ipv6 by deleting `/config/fail2ban/action.d/iptables-common.local` and restarting the container after updating the image
 + **11.01.18:** Halt the container if validation fails instead of a stop (so restart=always doesn't get users throttled with letsencrypt)
 + **10.01.18:** Add option for http validation on port 80
