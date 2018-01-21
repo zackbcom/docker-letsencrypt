@@ -9,6 +9,7 @@ LABEL maintainer="aptalca"
 # environment settings
 ENV DHLEVEL=2048 ONLY_SUBDOMAINS=false
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+ENV HTTPENV=true
 
 # install packages
 RUN \
